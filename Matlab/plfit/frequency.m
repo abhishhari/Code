@@ -65,6 +65,14 @@ for i = 1:length(file_list)
     % Generate power-law plot
     h = plplot(x, xmin, alpha);
     
+    % Perform Anderson-Darling test
+    [ad_stat, ad_critical_vals, ad_significance] = adtest(x, 'Distribution', 'exponential');
+    
+    % Display the Anderson-Darling test statistic, critical values, and significance level
+    disp(['Anderson-Darling test statistic: ' num2str(ad_stat)]);
+    disp(['Anderson-Darling critical values: ' num2str(ad_critical_vals)]);
+    disp(['Anderson-Darling significance level: ' num2str(ad_significance)]);
+    
     % Create the powerlaw path
     powerlaw_dir_path = [folder_path 'powerlaw/' file_list(i).name];
     powerlaw_dir_path = strrep(powerlaw_dir_path, '.csv', '');  % remove the .csv from the file image path
@@ -90,14 +98,15 @@ for i = 1:length(file_list)
     % Save the plot
     saveas(hp, [powerlaw_dir_path '_power_law_fit.png']);
     
-    % Write the power-law fit parameters to a CSV file
+    % Write the power-law fit parameters and Anderson-Darling test results to a CSV file
     plfit_params_dir_path = [folder_path 'plfit_params/'];
     if ~exist(plfit_params_dir_path, 'dir')
         mkdir(plfit_params_dir_path);
     end
     plfit_params_path = [plfit_params_dir_path file_list(i).name];
     plfit_params_path = strrep(plfit_params_path, '.csv', ''); % remove the .csv from the file path
-    csvwrite([plfit_params_path  '_power_law_fit_params.csv'], [alpha, xmin, L]);
+    result_data = [alpha, xmin, L, ad_stat, ad_critical_vals, ad_significance];
+    csvwrite([plfit_params_path  '_power_law_fit_params.csv'], result_data);
     
     % Print the values of the fitted linear lines
     disp(['xmin: ' num2str(xmin)]);
